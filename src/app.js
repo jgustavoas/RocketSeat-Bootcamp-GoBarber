@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import express, { json } from 'express';
 import path from 'path';
 import Youch from 'youch'; // Pretty error reporting for Node.js
@@ -39,9 +41,14 @@ class App {
     // Observe quatro parâmetros ao invés de três
     // O primeiro parâmetro é o erro para que este seja capturado
     this.server.use(async (err, req, res, next) => {
-      const errors = await new Youch(err, req).toJSON();
+      // Exibir detalhe de erros apenas em ambient de desenvolvimento:
+      if (process.env.NODE_ENV === 'development') {
+        const errors = await new Youch(err, req).toJSON();
 
-      return res.status(500).json(errors);
+        return res.status(500).json(errors);
+      }
+
+      return res.status(500).json({ error: 'Internal server error.' });
     });
   }
 }
